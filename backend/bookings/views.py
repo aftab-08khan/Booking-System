@@ -1,5 +1,4 @@
-from rest_framework import generics, permissions
-from rest_framework.exceptions import ValidationError
+from rest_framework import generics, permissions, serializers
 
 from .models import Booking
 from .serializers import BookingSerializer
@@ -11,31 +10,27 @@ class BookingCreateView(generics.CreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def perform_create(self, serializer):
+        event = serializer.validated_data['event']
 
-        event = serializer.validated_data.get("event")
+        # Count confirmed bookings
+        booked_count = Booking.objects.filter(
+            event=event,
+            status="confirmed"
+        ).count()
 
-        if not event:
-            raise ValidationError({"event": "Event is required"})
-
-        # -------------------------
-        # OVERBOOKING CHECK
-        # -------------------------
-        booked = event.bookings.filter(status="confirmed").count()
-
-        if booked >= event.capacity:
-            raise ValidationError("No seats available")
+        # Capacity check (safe version)
+        if booked_count >= event.capacity:
+            raise serializers.ValidationError("No seats available")
 
         serializer.save(
             user=self.request.user,
             status="pending"
         )
 
-from rest_framework.generics import ListAPIView
-from .models import Booking
-from .serializers import BookingSerializer
 
-class UserBookingListView(ListAPIView):
+class UserBookingListView(generics.ListAPIView):
     serializer_class = BookingSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Booking.objects.filter(user=self.request.user)

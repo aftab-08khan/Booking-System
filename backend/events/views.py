@@ -5,15 +5,9 @@ from .serializers import EventSerializer
 class EventListView(generics.ListAPIView):
     queryset = Event.objects.filter(is_active=True)
     serializer_class = EventSerializer
-
-
 class EventDetailView(generics.RetrieveAPIView):
     queryset = Event.objects.all()
     serializer_class = EventSerializer
-
-
-
-
 
 class EventListCreateView(generics.ListCreateAPIView):
     queryset = Event.objects.all()
