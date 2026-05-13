@@ -1,10 +1,17 @@
-import { Link, useSearchParams } from "react-router-dom";
-import { FiCheckCircle, FiCalendar, FiArrowRight } from "react-icons/fi";
+import { Link, useSearchParams,  } from "react-router-dom";
+import { FiCheckCircle } from "react-icons/fi";
 import { MdEvent, MdDashboard } from "react-icons/md";
+import { useEffect } from "react";
 
 function SuccessPage() {
   const [params] = useSearchParams();
   const sessionId = params.get("session_id");
+
+  useEffect(() => {
+    sessionStorage.removeItem('returningFromStripe');
+    
+    window.dispatchEvent(new Event('focus'));
+  }, []);
 
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50 flex items-center justify-center px-4 py-12">
@@ -42,6 +49,9 @@ function SuccessPage() {
 
             <Link
               to="/"
+              onClick={() => {
+                sessionStorage.setItem('returningFromStripe', 'true');
+              }}
               className="w-full border-2 border-gray-300 text-gray-700 font-medium py-3 rounded-xl hover:bg-gray-50 transition-all duration-200 flex items-center justify-center gap-2"
             >
               <MdEvent className="w-5 h-5" />

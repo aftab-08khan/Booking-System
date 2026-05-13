@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
+import { Link, useLocation } from "react-router-dom";
 import API from "../api/axios";
-import { FiCalendar, FiSearch, FiUsers, FiDollarSign, FiClock, FiMapPin } from "react-icons/fi";
+import { FiCalendar, FiSearch, FiUsers, FiDollarSign, FiClock, FiMapPin, FiEye } from "react-icons/fi";
 import { MdEvent, MdLocalActivity } from "react-icons/md";
 
 function EventCard({ event, onBooking }) {
@@ -19,43 +20,47 @@ function EventCard({ event, onBooking }) {
   return (
     <div className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200">
       
-      <div className="relative h-48 bg-gradient-to-br from-blue-600 to-indigo-600 overflow-hidden">
-        <div className="absolute inset-0 flex items-center justify-center">
-          <MdLocalActivity className="w-16 h-16 text-white opacity-20 group-hover:scale-110 transition-transform duration-300" />
-        </div>
-        
-        {isSoldOut && (
-          <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
-            SOLD OUT
+      <Link to={`/events/${event.id}`} className="block">
+        <div className="relative h-48 bg-gradient-to-br from-blue-600 to-indigo-600 overflow-hidden cursor-pointer">
+          <div className="absolute inset-0 flex items-center justify-center">
+            <MdLocalActivity className="w-16 h-16 text-white opacity-20 group-hover:scale-110 transition-transform duration-300" />
           </div>
-        )}
-        
-        <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-          <span className="text-white text-sm font-medium flex items-center gap-1">
-            <FiCalendar className="w-3 h-3" />
-            {new Date(event.start_datetime).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })}
-          </span>
-        </div>
+          
+          {isSoldOut && (
+            <div className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full shadow-lg z-10">
+              SOLD OUT
+            </div>
+          )}
+          
+          <div className="absolute bottom-4 left-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+            <span className="text-white text-sm font-medium flex items-center gap-1">
+              <FiCalendar className="w-3 h-3" />
+              {new Date(event.start_datetime).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
+          </div>
 
-        <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg">
-          <span className="text-white text-sm font-medium flex items-center gap-1">
-            <FiClock className="w-3 h-3" />
-            {new Date(event.start_datetime).toLocaleTimeString("en-US", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </span>
+          <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg">
+            <span className="text-white text-sm font-medium flex items-center gap-1">
+              <FiClock className="w-3 h-3" />
+              {new Date(event.start_datetime).toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+              })}
+            </span>
+          </div>
         </div>
-      </div>
+      </Link>
 
       <div className="p-6">
-        <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
-          {event.title}
-        </h2>
+        <Link to={`/events/${event.id}`}>
+          <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors hover:text-blue-600">
+            {event.title}
+          </h2>
+        </Link>
 
         <p className="text-gray-600 text-sm mb-4 line-clamp-2 leading-relaxed">
           {event.description}
@@ -99,17 +104,27 @@ function EventCard({ event, onBooking }) {
             <span className="text-sm text-gray-500">/person</span>
           </div>
           
-          <button
-            onClick={handleBookClick}
-            disabled={isSoldOut}
-            className={`px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95
-              ${isSoldOut
-                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg"
-              }`}
-          >
-            {isSoldOut ? "Sold Out" : "Book Now"}
-          </button>
+          <div className="flex gap-2">
+            <Link
+              to={`/events/${event.id}`}
+              className="px-1.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 border border-gray-300 text-gray-700 hover:bg-gray-50 inline-flex items-center gap-1"
+            >
+              <FiEye className="w-4 h-4" />
+              Details
+            </Link>
+            
+            <button
+              onClick={handleBookClick}
+              disabled={isSoldOut}
+              className={`px-1.5 py-2 rounded-xl text-sm font-semibold transition-all duration-200 transform hover:scale-105 active:scale-95
+                ${isSoldOut
+                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                  : "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-md hover:shadow-lg"
+                }`}
+            >
+              {isSoldOut ? "Sold Out" : "Book Now"}
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -117,21 +132,39 @@ function EventCard({ event, onBooking }) {
 }
 
 function EventsPage() {
+  const location = useLocation();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [filter, setFilter] = useState("all");
   const [bookingInProgress, setBookingInProgress] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
+  // Check if returning from Stripe
   useEffect(() => {
-    fetchEvents();
+    const urlParams = new URLSearchParams(window.location.search);
+    const sessionId = urlParams.get('session_id');
+    
+    // If we have a session_id, we're returning from Stripe
+    if (sessionId) {
+      // Clear the URL parameter without reloading
+      window.history.replaceState({}, document.title, window.location.pathname);
+      // Force refresh events
+      fetchEvents();
+    }
   }, []);
 
+  // Refresh events when component mounts or refreshKey changes
+  useEffect(() => {
+    fetchEvents();
+  }, [refreshKey]);
+
   const fetchEvents = async () => {
+    setLoading(true);
     try {
       const response = await API.get("events/");
       setEvents(response.data);
-      
+      console.log("Events fetched successfully:", response.data.length);
     } catch (error) {
       console.log("Fetch events error:", error);
     } finally {
@@ -140,11 +173,18 @@ function EventsPage() {
   };
 
   const handleBooking = async (eventId) => {
-    console.log(eventId,'id');
+    console.log(eventId, 'id');
     
     if (!eventId) {
       console.error("No event ID provided");
       alert("Invalid event");
+      return;
+    }
+
+    const token = localStorage.getItem("access");
+    if (!token) {
+      alert("Please login to book an event");
+      window.location.href = "/login";
       return;
     }
 
@@ -166,6 +206,8 @@ function EventsPage() {
       console.log("Payment response:", paymentResponse.data);
 
       if (paymentResponse.data.checkout_url) {
+        // Store a flag that we're going to Stripe
+        sessionStorage.setItem('returningFromStripe', 'true');
         window.location.href = paymentResponse.data.checkout_url;
       } else {
         throw new Error("No checkout URL received");
@@ -175,8 +217,13 @@ function EventsPage() {
       console.error("Booking error details:", error);
       
       if (error.response) {
-        console.error("Error response:", error.response.data);
-        alert(`Booking failed: ${error.response.data.message || "Please try again"}`);
+        if (error.response.status === 401) {
+          alert("Please login to book an event");
+          window.location.href = "/login";
+        } else {
+          console.error("Error response:", error.response.data);
+          alert(`Booking failed: ${error.response.data.message || error.response.data.error || "Please try again"}`);
+        }
       } else if (error.request) {
         alert("Network error. Please check your connection.");
       } else {
@@ -186,6 +233,34 @@ function EventsPage() {
       setBookingInProgress(false);
     }
   };
+
+  // Listen for page visibility changes (when coming back from Stripe)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && sessionStorage.getItem('returningFromStripe') === 'true') {
+        // We're back from Stripe, refresh events
+        console.log("Returning from Stripe, refreshing events...");
+        sessionStorage.removeItem('returningFromStripe');
+        fetchEvents();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    // Also check when page gets focus
+    window.addEventListener('focus', () => {
+      if (sessionStorage.getItem('returningFromStripe') === 'true') {
+        console.log("Page focused after Stripe, refreshing events...");
+        sessionStorage.removeItem('returningFromStripe');
+        fetchEvents();
+      }
+    });
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('focus', handleVisibilityChange);
+    };
+  }, []);
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -200,6 +275,19 @@ function EventsPage() {
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
+        {/* Refresh Button (optional) */}
+        <div className="flex justify-end mb-4">
+          <button
+            onClick={() => fetchEvents()}
+            className="text-gray-500 hover:text-blue-600 transition-colors p-2"
+            title="Refresh events"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+          </button>
+        </div>
+
         <div className="mb-8 text-center sm:text-left">
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             Upcoming Events

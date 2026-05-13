@@ -24,18 +24,18 @@ function DashboardPage() {
   const [processingPayment, setProcessingPayment] = useState(null);
 
   useEffect(() => {
-    fetchUserData();
+    // fetchUserData();
     fetchBookings();
   }, []);
 
-  const fetchUserData = async () => {
-    try {
-      const response = await API.get("/auth/profile/");
-      setUser(response.data);
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
+  // const fetchUserData = async () => {
+  //   try {
+  //     const response = await API.get("/auth/profile/");
+  //     setUser(response.data);
+  //   } catch (error) {
+  //     console.error("Error fetching user data:", error);
+  //   }
+  // };
 
   const fetchBookings = async () => {
     try {
@@ -133,8 +133,7 @@ function DashboardPage() {
   return (
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
+         <div className="mb-8">
           <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2">
             Welcome back, {user?.username || "User"}!
           </h1>
