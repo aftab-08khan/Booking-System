@@ -10,7 +10,8 @@ import {
   FiCheckCircle, 
   FiClock,
   FiTrello,
-  FiShoppingBag
+  FiShoppingBag,
+  FiCreditCard
 } from "react-icons/fi";
 import { MdEvent, MdPending } from "react-icons/md";
 import { FaRegCalendarAlt } from "react-icons/fa";
@@ -20,6 +21,7 @@ function DashboardPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState(null);
+  const [processingPayment, setProcessingPayment] = useState(null);
 
   useEffect(() => {
     fetchUserData();
@@ -37,14 +39,56 @@ function DashboardPage() {
 
   const fetchBookings = async () => {
     try {
-      const response = await API.get("/bookings/");
-      setBookings(response.data);
+      const response = await API.get("/bookings/my-bookings/");
+      setBookings(response?.data || []);
     } catch (error) {
       console.error("Error fetching bookings:", error);
+      setBookings([]);
     } finally {
       setLoading(false);
     }
   };
+
+  const handlePayment = async (bookingId) => {
+    if (!bookingId) {
+      console.error("No booking ID provided");
+      alert("Invalid booking");
+      return;
+    }
+
+    setProcessingPayment(bookingId);
+    
+    try {
+      console.log("Processing payment for booking ID:", bookingId);
+      
+      const paymentResponse = await API.post("payments/create-checkout-session/", {
+        booking_id: bookingId
+      });
+
+      console.log("Payment response:", paymentResponse.data);
+
+      if (paymentResponse.data.checkout_url) {
+        window.location.href = paymentResponse.data.checkout_url;
+      } else {
+        throw new Error("No checkout URL received");
+      }
+
+    } catch (error) {
+      console.error("Payment error details:", error);
+      
+      if (error.response) {
+        console.error("Error response:", error.response.data);
+        alert(`Payment failed: ${error.response.data.message || error.response.data.error || "Please try again"}`);
+      } else if (error.request) {
+        alert("Network error. Please check your connection.");
+      } else {
+        alert(`Payment failed: ${error.message}`);
+      }
+    } finally {
+      setProcessingPayment(null);
+    }
+  };
+
 
   const handleLogout = () => {
     localStorage.removeItem("access");
@@ -54,7 +98,7 @@ function DashboardPage() {
 
   const getStatusBadge = (status) => {
     const statusConfig = {
-      pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending", icon: <MdPending className="w-3 h-3 mr-1" /> },
+      pending: { color: "bg-yellow-100 text-yellow-800", label: "Pending Payment", icon: <MdPending className="w-3 h-3 mr-1" /> },
       confirmed: { color: "bg-green-100 text-green-800", label: "Confirmed", icon: <FiCheckCircle className="w-3 h-3 mr-1" /> },
       cancelled: { color: "bg-red-100 text-red-800", label: "Cancelled", icon: <FiLogOut className="w-3 h-3 mr-1" /> },
       failed: { color: "bg-gray-100 text-gray-800", label: "Failed", icon: <FiLogOut className="w-3 h-3 mr-1" /> },
@@ -66,6 +110,24 @@ function DashboardPage() {
         {config.label}
       </span>
     );
+  };
+
+  const getEventTitle = (booking) => {
+    if (booking.event_title) return booking.event_title;
+    if (booking.event?.title) return booking.event.title;
+    return `Event #${booking.event}`;
+  };
+
+  const getEventPrice = (booking) => {
+    if (booking.amount) return booking.amount;
+    if (booking.event?.price) return booking.event.price;
+    return "N/A";
+  };
+
+  const getEventDate = (booking) => {
+    if (booking.event?.start_datetime) return booking.event.start_datetime;
+    if (booking.start_datetime) return booking.start_datetime;
+    return null;
   };
 
   return (
@@ -81,7 +143,6 @@ function DashboardPage() {
           </p>
         </div>
 
-        {/* Action Buttons */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
           <Link
             to="/add-event"
@@ -100,7 +161,6 @@ function DashboardPage() {
           </button>
         </div>
 
-        {/* Stats Summary */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mb-8">
           <div className="bg-white rounded-xl shadow-md p-6 border border-gray-100">
             <div className="flex items-center justify-between">
@@ -143,7 +203,6 @@ function DashboardPage() {
           </div>
         </div>
 
-        {/* Bookings List */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
           <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
             <h2 className="text-xl font-semibold text-gray-900 inline-flex items-center gap-2">
@@ -174,44 +233,71 @@ function DashboardPage() {
             </div>
           ) : (
             <div className="divide-y divide-gray-200">
-              {bookings.map((booking) => (
+              {bookings?.map((booking) => (
                 <div key={booking.id} className="p-6 hover:bg-gray-50 transition-colors">
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-2">
+                      <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <h3 className="text-lg font-semibold text-gray-900">
-                          {booking.event?.title || "Event"}
+                          {getEventTitle(booking)}
                         </h3>
                         {getStatusBadge(booking.status)}
                       </div>
                       <div className="space-y-1 text-sm text-gray-600">
                         <div className="flex items-center gap-2">
                           <FaRegCalendarAlt className="w-4 h-4" />
-                          <span>{new Date(booking.event?.start_datetime).toLocaleString()}</span>
+                          <span>
+                            {getEventDate(booking) 
+                              ? new Date(getEventDate(booking)).toLocaleString()
+                              : "Date not specified"}
+                          </span>
                         </div>
                         <div className="flex items-center gap-2">
                           <FiDollarSign className="w-4 h-4" />
-                          <span>${booking.event?.price}</span>
+                          <span>${getEventPrice(booking)}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <FiCalendar className="w-4 h-4" />
+                          <span className="text-xs text-gray-500">
+                            Booked on: {new Date(booking?.created_at).toLocaleDateString()}
+                          </span>
                         </div>
                       </div>
                     </div>
+                    
                     <div className="flex gap-3">
-                      {booking.status === 'pending' && (
+                      {booking?.status === 'pending' && (
                         <button
-                          onClick={() => {/* Handle payment */}}
-                          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all inline-flex items-center gap-2"
+                          onClick={() => handlePayment(booking?.id)}
+                          disabled={processingPayment === booking?.id}
+                          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all inline-flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <FiDollarSign className="w-4 h-4" />
-                          Complete Payment
+                          {processingPayment === booking?.id ? (
+                            <>
+                              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                              </svg>
+                              Processing...
+                            </>
+                          ) : (
+                            <>
+                              <FiCreditCard className="w-4 h-4" />
+                              Complete Payment
+                            </>
+                          )}
                         </button>
                       )}
-                      <Link
-                        to={`/events/${booking.event?.id}`}
-                        className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all inline-flex items-center gap-2"
-                      >
-                        <MdEvent className="w-4 h-4" />
-                        View Event
-                      </Link>
+                      
+                      {booking.status !== 'pending' && booking.event && (
+                        <Link
+                          to={`/events/${booking.event}`}
+                          className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all inline-flex items-center gap-2"
+                        >
+                          <MdEvent className="w-4 h-4" />
+                          View Event
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>

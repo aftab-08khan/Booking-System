@@ -19,7 +19,7 @@ function AddEventPage() {
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
-    setError(""); // Clear error when user types
+    setError("");
   };
 
   const handleSubmit = async (e) => {
@@ -34,7 +34,17 @@ function AddEventPage() {
       return;
     }
 
+    // Check if user is authenticated
+    const token = localStorage.getItem("access");
+    if (!token) {
+      setError("You need to be logged in to create events. Redirecting to login...");
+      setTimeout(() => navigate("/login"), 2000);
+      setLoading(false);
+      return;
+    }
+
     try {
+      // Use the same events endpoint - it should accept POST
       const response = await API.post("/events/", {
         title: form.title,
         description: form.description,
@@ -42,29 +52,34 @@ function AddEventPage() {
         end_datetime: form.end_datetime,
         price: Number(form.price),
         capacity: Number(form.capacity),
+        is_active: true, // Set as active by default
       });
 
-      if (response.data) {
-        navigate("/");
-      }
+      console.log("Event created successfully:", response.data);
+      navigate("/");
+      
     } catch (error) {
       console.error("Error creating event:", error);
       
       if (error.response) {
         // Server responded with error status
-        if (error.response.status === 405) {
-          setError("Method not allowed. Please check if you have permission to create events.");
-        } else if (error.response.status === 401) {
-          setError("You need to be logged in to create events. Redirecting to login...");
+        if (error.response.status === 401) {
+          setError("Please login to create events. Redirecting...");
           setTimeout(() => navigate("/login"), 2000);
         } else if (error.response.status === 403) {
           setError("You don't have permission to create events.");
+        } else if (error.response.status === 405) {
+          setError("Method not allowed. Please check backend configuration.");
         } else if (error.response.data) {
           // Handle validation errors
-          const errorMessages = Object.values(error.response.data).flat();
-          setError(errorMessages.join(", "));
+          if (typeof error.response.data === 'object') {
+            const errorMessages = Object.values(error.response.data).flat();
+            setError(errorMessages.join(", "));
+          } else {
+            setError(error.response.data.message || "Failed to create event");
+          }
         } else {
-          setError(error.response.data?.message || "Failed to create event");
+          setError("Failed to create event. Please try again.");
         }
       } else if (error.request) {
         setError("Network error. Please check if the server is running.");

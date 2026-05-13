@@ -15,9 +15,11 @@ function BookingSuccessPage() {
   const fetchLatestBooking = async () => {
     try {
       const response = await API.get("bookings/");
-      setBookings(response.data);
+      console.log(response,'response');
+      
+      setBookings(response?.data);
     } catch (err) {
-      console.log(err);
+      console.log(err,'eerrr');
     } finally {
       setLoading(false);
     }
@@ -86,7 +88,6 @@ function BookingSuccessPage() {
             </div>
           )}
 
-          {/* Loading state */}
           {loading && (
             <div className="bg-gray-50 rounded-xl p-6 mb-8">
               <div className="flex items-center justify-center">
@@ -99,7 +100,6 @@ function BookingSuccessPage() {
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex flex-col gap-3">
             <Link
               to="/dashboard"

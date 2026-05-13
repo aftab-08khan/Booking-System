@@ -3,7 +3,6 @@ import API from "../api/axios";
 import { FiCalendar, FiSearch, FiUsers, FiDollarSign, FiClock, FiMapPin } from "react-icons/fi";
 import { MdEvent, MdLocalActivity } from "react-icons/md";
 
-// EventCard Component
 function EventCard({ event, onBooking }) {
   const isSoldOut = event.available_seats === 0;
   const availableSeats = event.available_seats;
@@ -11,16 +10,15 @@ function EventCard({ event, onBooking }) {
   const occupancyPercentage = totalSeats ? ((totalSeats - availableSeats) / totalSeats) * 100 : 0;
 
   const handleBookClick = (e) => {
-    e.preventDefault(); // Prevent any default behavior
+    e.preventDefault(); 
     if (!isSoldOut && event.id) {
-      onBooking(event.id); // Pass only the ID, not the whole event
+      onBooking(event.id); 
     }
   };
 
   return (
     <div className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200">
       
-      {/* Event Image/Header */}
       <div className="relative h-48 bg-gradient-to-br from-blue-600 to-indigo-600 overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <MdLocalActivity className="w-16 h-16 text-white opacity-20 group-hover:scale-110 transition-transform duration-300" />
@@ -119,7 +117,6 @@ function EventCard({ event, onBooking }) {
   );
 }
 
-// Main EventsPage Component
 function EventsPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -135,6 +132,8 @@ function EventsPage() {
     try {
       const response = await API.get("events/");
       setEvents(response.data);
+      console.log(response.data);
+      
     } catch (error) {
       console.log("Fetch events error:", error);
     } finally {
@@ -143,7 +142,8 @@ function EventsPage() {
   };
 
   const handleBooking = async (eventId) => {
-    // Make sure we have a valid eventId
+    console.log(eventId,'id');
+    
     if (!eventId) {
       console.error("No event ID provided");
       alert("Invalid event");
@@ -155,21 +155,18 @@ function EventsPage() {
     try {
       console.log("Booking event with ID:", eventId);
       
-      // Create booking - pass only the event ID, not the whole object
       const bookingResponse = await API.post("bookings/", {
-        event: eventId  // This should be just the ID number
+        event: eventId  
       });
 
       console.log("Booking response:", bookingResponse.data);
 
-      // Create payment session
       const paymentResponse = await API.post("payments/create-checkout-session/", {
         booking_id: bookingResponse.data.id
       });
 
       console.log("Payment response:", paymentResponse.data);
 
-      // Redirect to Stripe checkout
       if (paymentResponse.data.checkout_url) {
         window.location.href = paymentResponse.data.checkout_url;
       } else {
@@ -179,7 +176,6 @@ function EventsPage() {
     } catch (error) {
       console.error("Booking error details:", error);
       
-      // Better error message
       if (error.response) {
         console.error("Error response:", error.response.data);
         alert(`Booking failed: ${error.response.data.message || "Please try again"}`);
@@ -206,7 +202,6 @@ function EventsPage() {
     <div className="min-h-[calc(100vh-64px)] bg-gradient-to-br from-slate-50 via-gray-50 to-blue-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         
-        {/* Header Section */}
         <div className="mb-8 text-center sm:text-left">
           <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
             Upcoming Events
@@ -264,7 +259,6 @@ function EventsPage() {
           </div>
         </div>
 
-        {/* Booking in progress indicator */}
         {bookingInProgress && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
             <div className="bg-white rounded-xl p-8 text-center">
@@ -277,7 +271,6 @@ function EventsPage() {
           </div>
         )}
 
-        {/* Events Grid */}
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="text-center">
