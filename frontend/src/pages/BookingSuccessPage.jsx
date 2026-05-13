@@ -15,7 +15,6 @@ function BookingSuccessPage() {
   const fetchLatestBooking = async () => {
     try {
       const response = await API.get("bookings/");
-      console.log(response,'response');
       
       setBookings(response?.data);
     } catch (err) {
@@ -32,7 +31,6 @@ function BookingSuccessPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 text-center">
           
-          {/* Success Icon */}
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-6 shadow-lg">
             <FiCheckCircle className="w-12 h-12 text-white" />
           </div>
@@ -44,7 +42,6 @@ function BookingSuccessPage() {
             Your booking is confirmed. You're all set!
           </p>
 
-          {/* Latest booking info */}
           {!loading && latest && (
             <div className="bg-gray-50 rounded-xl p-6 mb-8 text-left border border-gray-200">
               <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">

@@ -10,7 +10,6 @@ export function EventCard({ event ,handleBookClick}) {
 
   return (
     <div className="group bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden border border-gray-100 hover:border-blue-200">
-      {/* Event Image/Header */}
       <div className="relative h-48 bg-gradient-to-br from-blue-600 to-indigo-600 overflow-hidden">
         <div className="absolute inset-0 flex items-center justify-center">
           <MdLocalActivity className="w-16 h-16 text-white opacity-20 group-hover:scale-110 transition-transform duration-300" />
@@ -44,7 +43,6 @@ export function EventCard({ event ,handleBookClick}) {
         </div>
       </div>
 
-      {/* Event Content */}
       <div className="p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
           {event.title}

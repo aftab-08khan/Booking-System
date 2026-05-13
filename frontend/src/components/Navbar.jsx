@@ -16,7 +16,6 @@ function Navbar() {
     <nav className="bg-white shadow-md sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          {/* Logo */}
           <Link
             to="/"
             className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-indigo-700 transition-all duration-200"
@@ -24,7 +23,6 @@ function Navbar() {
             EventHub
           </Link>
 
-          {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-6">
             <Link
               to="/"
@@ -68,7 +66,6 @@ function Navbar() {
             )}
           </div>
 
-          {/* Mobile menu button */}
           <div className="md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -93,7 +90,6 @@ function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isMobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-gray-100">
             <div className="flex flex-col gap-3">

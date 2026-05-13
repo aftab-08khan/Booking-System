@@ -27,14 +27,12 @@ function AddEventPage() {
     setLoading(true);
     setError("");
 
-    // Validate datetime fields
     if (new Date(form.start_datetime) >= new Date(form.end_datetime)) {
       setError("End date must be after start date");
       setLoading(false);
       return;
     }
 
-    // Check if user is authenticated
     const token = localStorage.getItem("access");
     if (!token) {
       setError("You need to be logged in to create events. Redirecting to login...");
@@ -44,7 +42,6 @@ function AddEventPage() {
     }
 
     try {
-      // Use the same events endpoint - it should accept POST
       const response = await API.post("/events/", {
         title: form.title,
         description: form.description,
@@ -52,7 +49,7 @@ function AddEventPage() {
         end_datetime: form.end_datetime,
         price: Number(form.price),
         capacity: Number(form.capacity),
-        is_active: true, // Set as active by default
+        is_active: true, 
       });
 
       console.log("Event created successfully:", response.data);
@@ -62,7 +59,6 @@ function AddEventPage() {
       console.error("Error creating event:", error);
       
       if (error.response) {
-        // Server responded with error status
         if (error.response.status === 401) {
           setError("Please login to create events. Redirecting...");
           setTimeout(() => navigate("/login"), 2000);
@@ -71,7 +67,6 @@ function AddEventPage() {
         } else if (error.response.status === 405) {
           setError("Method not allowed. Please check backend configuration.");
         } else if (error.response.data) {
-          // Handle validation errors
           if (typeof error.response.data === 'object') {
             const errorMessages = Object.values(error.response.data).flat();
             setError(errorMessages.join(", "));
@@ -110,14 +105,12 @@ function AddEventPage() {
             </p>
           </div>
 
-          {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm">
               {error}
             </div>
           )}
 
-          {/* Title Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Event Title *
@@ -135,7 +128,6 @@ function AddEventPage() {
             </div>
           </div>
 
-          {/* Description Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Description *
@@ -154,7 +146,6 @@ function AddEventPage() {
             </div>
           </div>
 
-          {/* Start Date & Time */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Start Date & Time *
@@ -172,7 +163,6 @@ function AddEventPage() {
             </div>
           </div>
 
-          {/* End Date & Time */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               End Date & Time *
@@ -190,7 +180,6 @@ function AddEventPage() {
             </div>
           </div>
 
-          {/* Price Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Price ($) *
@@ -211,7 +200,6 @@ function AddEventPage() {
             </div>
           </div>
 
-          {/* Capacity Input */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
               Capacity *
@@ -231,7 +219,6 @@ function AddEventPage() {
             </div>
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}

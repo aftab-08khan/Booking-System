@@ -11,12 +11,10 @@ function SuccessPage() {
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10 text-center">
           
-          {/* Success Icon */}
           <div className="inline-flex items-center justify-center w-24 h-24 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-6 shadow-lg">
             <FiCheckCircle className="w-12 h-12 text-white" />
           </div>
 
-          {/* Title */}
           <h1 className="text-3xl font-bold text-gray-900 mb-3">
             Payment Successful!
           </h1>
@@ -25,7 +23,6 @@ function SuccessPage() {
             Your booking has been confirmed successfully.
           </p>
 
-          {/* Session ID (optional debug) */}
           {sessionId && (
             <div className="mt-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
               <p className="text-xs text-gray-500 break-all font-mono">
@@ -34,7 +31,6 @@ function SuccessPage() {
             </div>
           )}
 
-          {/* Buttons */}
           <div className="mt-8 space-y-3">
             <Link
               to="/dashboard"

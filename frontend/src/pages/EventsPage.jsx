@@ -52,7 +52,6 @@ function EventCard({ event, onBooking }) {
         </div>
       </div>
 
-      {/* Event Content */}
       <div className="p-6">
         <h2 className="text-xl font-bold text-gray-900 mb-2 line-clamp-1 group-hover:text-blue-600 transition-colors">
           {event.title}
@@ -132,7 +131,6 @@ function EventsPage() {
     try {
       const response = await API.get("events/");
       setEvents(response.data);
-      console.log(response.data);
       
     } catch (error) {
       console.log("Fetch events error:", error);
@@ -211,7 +209,6 @@ function EventsPage() {
           </p>
         </div>
 
-        {/* Search and Filter Section */}
         <div className="bg-white rounded-xl shadow-md p-6 mb-8">
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
