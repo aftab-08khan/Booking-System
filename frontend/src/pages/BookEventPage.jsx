@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 function BookEventPage() {
   const { id } = useParams();
   const navigate = useNavigate();
-  console.log(id, "id");
 
   const [event, setEvent] = useState(null);
 
